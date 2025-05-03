@@ -7,6 +7,7 @@
     <RootNamespace>mcp_devto</RootNamespace>
     <UserSecretsId>cbdb15bd-1c31-4385-bc37-e79db9b93d61</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
   </PropertyGroup>
 
   <ItemGroup>

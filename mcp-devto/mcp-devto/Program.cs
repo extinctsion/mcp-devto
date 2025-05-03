@@ -1,25 +1,20 @@
 using mcp_devto.ToolType;
 using Service;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = Host.CreateApplicationBuilder(args);
 
 // Add services to the container.
+builder.Logging.AddConsole(options =>
+{
+    options.LogToStandardErrorThreshold = LogLevel.Trace;
+});
 
 builder.Services
     .AddMcpServer()
     .WithStdioServerTransport()
-    .WithTools();
+    .WithToolsFromAssembly();
 
-builder.Services.AddHttpClient();
-builder.Services.AddScoped<IDevToService, DevToService>();
-builder.Services.AddScoped<DevTools>();
+builder.Services.AddSingleton<IDevToService, DevToService>();
+builder.Services.AddSingleton<DevTools>();
 
-// builder.Services.Configure<DevToOptions>(
-//     builder.Configuration.GetSection("DevTo")
-// );
-
-var app = builder.Build();
-
-app.MapMcp();
-
-app.Run();
+await builder.Build().RunAsync();

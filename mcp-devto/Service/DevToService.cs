@@ -15,7 +15,7 @@ namespace Service
         {
             _httpClient = httpClient;
             _httpClient.BaseAddress = new Uri(BaseUrl);
-            _apiKey = configuration["DevTo:ApiKey"];
+            _apiKey = configuration["DevTo:ApiKey"] ?? throw new ArgumentNullException("DevTo:ApiKey", "API key is missing in configuration.");
         }
 
         private async Task<T> FetchFromApi<T>(string path, Dictionary<string, string> queryParams = null)
@@ -23,13 +23,24 @@ namespace Service
             var query = queryParams != null ? $"?{string.Join("&", queryParams.Select(x => $"{x.Key}={x.Value}"))}" : "";
             var response = await _httpClient.GetAsync($"{path}{query}");
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<T>();
+            var result = await response.Content.ReadFromJsonAsync<T>();
+            if (result == null)
+                throw new InvalidOperationException("Failed to deserialize the response content.");
+            return result;
         }
 
         public async Task<string> GetLatestArticles()
         {
-            var articles = await FetchFromApi<List<Article>>("/articles/latest");
-            return FormatHelper.FormatArticles(articles.Take(10));
+            // Default values as per interface contract
+            int page = 1;
+            int perPage = 10;
+            var queryParams = new Dictionary<string, string>
+            {
+                { "page", page.ToString() },
+                { "per_page", perPage.ToString() }
+            };
+            var articles = await FetchFromApi<List<Article>>("/articles/latest", queryParams);
+            return FormatHelper.FormatArticles(articles);
         }
 
         public async Task<string> GetTopArticles()
@@ -76,6 +87,9 @@ namespace Service
             response.EnsureSuccessStatusCode();
             var result = await response.Content.ReadFromJsonAsync<Article>();
 
+            if (result == null)
+                throw new InvalidOperationException("Failed to deserialize the created article response.");
+
             return $"Article created successfully with ID: {result.Id}\nURL: {result.Url}";
         }
 
@@ -109,7 +123,7 @@ namespace Service
             return FormatHelper.FormatUserProfile(user);
         }
 
-        public async Task<string> UpdateArticle(int articleId, string title = null, string bodyMarkdown = null, string tags = null, bool? published = null)
+        public async Task<string> UpdateArticle(int articleId, string? title = null, string? bodyMarkdown = null, string? tags = null, bool? published = null)
         {
             var article = new
             {
@@ -131,6 +145,9 @@ namespace Service
             var response = await _httpClient.SendAsync(request);
             response.EnsureSuccessStatusCode();
             var result = await response.Content.ReadFromJsonAsync<Article>();
+
+            if (result == null)
+                throw new InvalidOperationException("Failed to deserialize the updated article response.");
 
             return $"Article updated successfully\nURL: {result.Url}";
         }

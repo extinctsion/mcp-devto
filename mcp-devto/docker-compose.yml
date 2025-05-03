@@ -1,0 +1,6 @@
+services:
+  mcp-devto:
+    image: ${DOCKER_REGISTRY-}mcpdevto
+    build:
+      context: .
+      dockerfile: mcp-devto/Dockerfile

@@ -11,3 +11,5 @@
 /mcp-devto/Service/bin/Debug/net9.0
 /mcp-devto/Service/obj
 /mcp-devto/mcp-devto/bin/Debug/net9.0
+*cache
+

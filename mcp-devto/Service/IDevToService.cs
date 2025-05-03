@@ -11,6 +11,6 @@ namespace Service
         Task<string> GetArticlesByUsername(string username);
         Task<string> GetUserInfo(string username);
         Task<string> CreateArticle(string title, string bodyMarkdown, string tags = "", bool published = false);
-        Task<string> UpdateArticle(int articleId, string title = null, string bodyMarkdown = null, string tags = null, bool? published = null);
+        Task<string> UpdateArticle(int articleId, string? title = null, string? bodyMarkdown = null, string? tags = null, bool? published = null);
     }
 }
